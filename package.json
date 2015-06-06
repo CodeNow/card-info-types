@@ -1,0 +1,14 @@
+{
+  "name": "card-info-types",
+  "version": "0.0.0",
+  "description": "Classes for parsing through Runnable-annotated Dockerfiles",
+  "main": "cardInfoTypes.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "private": true,
+  "author": "Runnable",
+  "dependencies": {
+    "uuid": "^2.0.1"
+  }
+}
