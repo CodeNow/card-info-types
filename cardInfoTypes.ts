@@ -9,7 +9,7 @@ declare var require: any;
 var uuid = require('uuid');
 
 module ContainerItems {
-  export class DockerfileItem {
+  class DockerfileItem {
     name: string;
     path: string;
     commands: string;
@@ -17,6 +17,7 @@ module ContainerItems {
     id: string;
     fromServer: boolean;
     hasFindReplace: boolean;
+    legacyADD: boolean;
     constructor(public commandStr?: string) {
       this.id = uuid.v4();
       if (commandStr) {
@@ -32,7 +33,7 @@ module ContainerItems {
           this.path = params[1].replace('/', '');
         } catch (e) {
           // ADD is *not* in array syntax (legacy)
-          //errs.handler('ADD command not in array syntax, please remove and reupload file');
+          this.legacyADD = true;
           var commands = /^ADD ((?:\\\s|[^\s])*) ((?:\\\s|[^\s])*)/.exec(commandList[0]);
           this.name = commands[1].replace('./', '');
           this.path = commands[2].replace('/', '');

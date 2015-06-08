@@ -24,7 +24,7 @@ var ContainerItems;
                 }
                 catch (e) {
                     // ADD is *not* in array syntax (legacy)
-                    //errs.handler('ADD command not in array syntax, please remove and reupload file');
+                    this.legacyADD = true;
                     var commands = /^ADD ((?:\\\s|[^\s])*) ((?:\\\s|[^\s])*)/.exec(commandList[0]);
                     this.name = commands[1].replace('./', '');
                     this.path = commands[2].replace('/', '');
@@ -77,7 +77,6 @@ var ContainerItems;
         };
         return DockerfileItem;
     })();
-    ContainerItems.DockerfileItem = DockerfileItem;
     var File = (function (_super) {
         __extends(File, _super);
         function File(commandStr) {

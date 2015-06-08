@@ -4,11 +4,15 @@
   "description": "Classes for parsing through Runnable-annotated Dockerfiles",
   "main": "cardInfoTypes.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "tsc --module commonjs --watch cardInfoTypes.ts",
+    "test": "mocha -R nyan"
   },
   "private": true,
   "author": "Runnable",
   "dependencies": {
     "uuid": "^2.0.1"
+  },
+  "devDependencies": {
+    "chai": "~2.1.1"
   }
 }
