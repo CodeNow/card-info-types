@@ -90,7 +90,7 @@ describe('toString', function () {
   it('outputs WORKDIR when there are commands', function () {
     var cmdStr = [
       'ADD ["./asdf", "/"]',
-      'WORKDIR ["/"]',
+      'WORKDIR /',
       'RUN apt-get install'
     ].join('\n');
 

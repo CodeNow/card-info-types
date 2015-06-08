@@ -69,7 +69,7 @@ module ContainerItems {
         .filter((command) => !!(command.trim()));
 
       if (tempCommands.length) {
-        contents += '\nWORKDIR ["/' + this.path.trim() + '"]\n'
+        contents += '\nWORKDIR /' + this.path.trim() + '\n'
         + tempCommands
           .map((command) => {
             if (command.indexOf('ADD') === 0) {

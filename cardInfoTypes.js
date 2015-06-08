@@ -58,7 +58,7 @@ var ContainerItems;
                 .split('\n')
                 .filter(function (command) { return !!(command.trim()); });
             if (tempCommands.length) {
-                contents += '\nWORKDIR ["/' + this.path.trim() + '"]\n'
+                contents += '\nWORKDIR /' + this.path.trim() + '\n'
                     + tempCommands
                         .map(function (command) {
                         if (command.indexOf('ADD') === 0) {
