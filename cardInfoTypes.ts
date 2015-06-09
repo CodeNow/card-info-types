@@ -57,16 +57,18 @@ module ContainerItems {
       } else {
         this.path = this.path || this.name;
       }
-      if (this.hasFindReplace) {
-        var scriptPath = '/' + this.path + '/translation_rules.sh';
-        this.commands = 'ADD ./translation_rules.sh ' + scriptPath + '\n' +
-        'sh ' + scriptPath + '\n'.concat(this.commands);
-      }
 
       var contents = 'ADD ["./' + this.name.trim() + '", "/' + this.path.trim() + '"]';
       var tempCommands = this.commands
         .split('\n')
         .filter((command) => !!(command.trim()));
+
+      if (this.hasFindReplace) {
+        tempCommands = [
+          'ADD ./translation_rules.sh translation_rules.sh',
+          'bash translation_rules.sh'
+        ].concat(tempCommands);
+      }
 
       if (tempCommands.length) {
         contents += '\nWORKDIR /' + this.path.trim() + '\n'
