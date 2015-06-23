@@ -102,13 +102,27 @@ describe('toString', function () {
     var cmdStr = [
       'ADD ["./asdf", "/asdf"]',
       'WORKDIR /asdf',
-      'ADD ./translation_rules.sh translation_rules.sh',
-      'RUN bash translation_rules.sh',
+      'ADD ./find_and_replace.sh find_and_replace.sh',
+      'RUN bash find_and_replace.sh',
       'RUN apt-get install'
     ].join('\n');
 
     var repo = new Repository(cmdStr);
 
     expect(repo.toString()).to.equal('#Start: Repository\n' + cmdStr + '\n#End');
+  });
+  it('migrates old translation rules file names', function () {
+    var cmdStr = [
+      'ADD ["./asdf", "/asdf"]',
+      'WORKDIR /asdf',
+      'ADD ./translation_rules.sh translation_rules.sh',
+      'RUN bash translation_rules.sh',
+      'RUN apt-get install'
+    ].join('\n');
+
+    var repo = new Repository(cmdStr);
+    var fixedCmdStr = cmdStr.replace(/translation_rules/g, 'find_and_replace');
+
+    expect(repo.toString()).to.equal('#Start: Repository\n' + fixedCmdStr + '\n#End');
   });
 });

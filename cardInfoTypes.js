@@ -1,9 +1,8 @@
 'use strict';
-var __extends = this.__extends || function (d, b) {
+var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var uuid = require('uuid');
 var ContainerItems;
@@ -30,7 +29,13 @@ var ContainerItems;
                     this.path = commands[2].replace('/', '');
                 }
                 commandList.splice(0, 2); //Remove the ADD and the WORKDIR
-                if (commandList.length && commandList[0].indexOf('ADD ./translation_rules.sh') > -1) {
+                // migrate translation_rules -> find_and_replace
+                if (commandList.length) {
+                    commandList = commandList.map(function (item) {
+                        return item.replace(/translation_rules\.sh/ig, 'find_and_replace.sh');
+                    });
+                }
+                if (commandList.length && commandList[0].indexOf('ADD ./find_and_replace.sh') > -1) {
                     this.hasFindReplace = true;
                     // Remove add/chmod/run
                     commandList.splice(0, 2);
@@ -54,8 +59,8 @@ var ContainerItems;
                 .filter(function (command) { return !!(command.trim()); });
             if (this.hasFindReplace) {
                 tempCommands = [
-                    'ADD ./translation_rules.sh translation_rules.sh',
-                    'bash translation_rules.sh'
+                    'ADD ./find_and_replace.sh find_and_replace.sh',
+                    'bash find_and_replace.sh'
                 ].concat(tempCommands);
             }
             if (tempCommands.length) {
