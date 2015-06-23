@@ -30,11 +30,11 @@ var ContainerItems;
                 }
                 commandList.splice(0, 2); //Remove the ADD and the WORKDIR
                 // migrate translation_rules -> find_and_replace
-                // if (commandList.length) {
-                //   commandList = commandList.map(function (item) {
-                //     return item.replace(/translation_rules\.sh/ig, 'find_and_replace.sh');
-                //   });
-                // }
+                if (commandList.length) {
+                    commandList = commandList.map(function (item) {
+                        return item.replace(/translation_rules\.sh/ig, 'find_and_replace.sh');
+                    });
+                }
                 if (commandList.length && commandList[0].indexOf('ADD ./find_and_replace.sh') > -1) {
                     this.hasFindReplace = true;
                     // Remove add/chmod/run
