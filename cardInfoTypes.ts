@@ -27,6 +27,7 @@ module ContainerItems {
     commands: Array<any>;
     hasFindReplace: boolean;
     constructor(public commandStr?: string) {
+      super();
       this.id = uuid.v4();
       if (commandStr) {
         this.fromServer = true;
@@ -137,10 +138,11 @@ module ContainerItems {
   }
   export class Packages extends ContainerItem {
     packageList: string;
-    private preamble:  'RUN apt-get update -y && apt-get upgrade -y && apt-get ';
+    private preamble: string;
     constructor(public commandStr: string) {
-      this.type = 'Packages';
       super();
+      this.preamble = 'RUN apt-get update -y && apt-get upgrade -y && apt-get ';
+      this.type = 'Packages';
 
       if (commandStr) {
         this.fromServer = true;

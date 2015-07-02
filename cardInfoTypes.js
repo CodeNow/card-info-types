@@ -21,6 +21,7 @@ var ContainerItems;
     var DockerfileItem = (function (_super) {
         __extends(DockerfileItem, _super);
         function DockerfileItem(commandStr) {
+            _super.call(this);
             this.commandStr = commandStr;
             this.id = uuid.v4();
             if (commandStr) {
@@ -139,10 +140,10 @@ var ContainerItems;
     var Packages = (function (_super) {
         __extends(Packages, _super);
         function Packages(commandStr) {
+            _super.call(this);
             this.commandStr = commandStr;
             this.preamble = 'RUN apt-get update -y && apt-get upgrade -y && apt-get ';
             this.type = 'Packages';
-            _super.call(this);
             if (commandStr) {
                 this.fromServer = true;
                 this.packageList = commandStr.replace(this.preamble, '');
