@@ -48,16 +48,12 @@ var ContainerItems;
                     commandList.splice(0, 2);
                 }
                 this.commands = commandList.map(function (item) {
-                    return {
-                        displayText: item.replace('RUN ', '').replace('#runnable-cache', '').trim(),
-                        text: item,
-                        cache: item.indexOf('#runnable-cache') > -1
-                    };
-                });
+                    return item.replace('RUN ', '');
+                }).join('\n');
             }
         }
         DockerfileItem.prototype.toString = function () {
-            this.commands = this.commands || [];
+            this.commands = this.commands || '';
             if (this.type === 'File') {
                 this.path = this.path || '';
             }
@@ -66,29 +62,23 @@ var ContainerItems;
             }
             var contents = 'ADD ["./' + this.name.trim() + '", "/' + this.path.trim() + '"]';
             var tempCommands = this.commands
-                .filter(function (command) { return !!(command.text.trim()); })
-                .map(function (command) {
-                if (command.cache) {
-                    command.text += ' #runnable-cache';
-                }
-                else {
-                    command.text = command.text.replace('#runnable-cache', '').trim();
-                }
-                return command;
-            });
+                .split('\n')
+                .filter(function (command) { return !!(command.trim()); });
             if (this.hasFindReplace) {
                 tempCommands = [
-                    {
-                        text: 'ADD ./translation_rules.sh translation_rules.sh'
-                    }, {
-                        text: 'RUN bash translation_rules.sh'
-                    }
+                    'ADD ./translation_rules.sh translation_rules.sh',
+                    'bash translation_rules.sh'
                 ].concat(tempCommands);
             }
             if (tempCommands.length) {
                 contents += '\nWORKDIR /' + this.path.trim() + '\n'
                     + tempCommands
-                        .map(function (command) { return command.text; })
+                        .map(function (command) {
+                        if (command.indexOf('ADD') === 0) {
+                            return command;
+                        }
+                        return 'RUN ' + command;
+                    })
                         .join('\n');
             }
             return this.wrapWithType(contents);
