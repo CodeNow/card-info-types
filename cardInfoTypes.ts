@@ -145,7 +145,6 @@ module ContainerItems {
     clone() {
       var packages = new Packages(this.commandStr);
       Object.keys(this).forEach((key) => packages[key] = this[key]);
-      console.log(packages);
       return packages;
     }
   }
