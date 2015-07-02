@@ -146,7 +146,6 @@ var ContainerItems;
             var _this = this;
             var packages = new Packages(this.commandStr);
             Object.keys(this).forEach(function (key) { return packages[key] = _this[key]; });
-            console.log(packages);
             return packages;
         };
         return Packages;
