@@ -40,7 +40,7 @@ describe('main constructor', function () {
       expect(file.id).to.match(uuidReg);
       expect(file.name).to.equal('asdf');
       expect(file.path).to.equal('');
-      expect(file.commands).to.equal('');
+      expect(file.commands).to.deep.equal([]);
       expect(file).to.not.have.property('hasFindReplace');
       expect(file).to.not.have.property('legacyADD');
     });
@@ -65,7 +65,11 @@ describe('main constructor', function () {
       expect(file.id).to.match(uuidReg);
       expect(file.name).to.equal('asdf');
       expect(file.path).to.equal('');
-      expect(file.commands).to.equal('apt-get install');
+      expect(file.commands).to.deep.equal([{
+        text: 'RUN apt-get install',
+        displayText: 'apt-get install',
+        cache: false
+      }]);
       expect(file).to.not.have.property('hasFindReplace');
       expect(file).to.not.have.property('legacyADD');
     });
@@ -110,5 +114,39 @@ describe('toString', function () {
     var repo = new Repository(cmdStr);
 
     expect(repo.toString()).to.equal('#Start: Repository\n' + cmdStr + '\n#End');
+  });
+});
+
+describe('caching', function () {
+  it('notes the existence of the runnable-cache comment', function () {
+    var cmdStr = [
+      'ADD ["./asdf", "/"]',
+      'WORKDIR /',
+      'RUN apt-get install #runnable-cache'
+    ].join('\n');
+
+    var file = new File(cmdStr);
+
+    expect(file.commands).to.deep.equal([{
+      text: 'RUN apt-get install #runnable-cache',
+      displayText: 'apt-get install',
+      cache: true
+    }]);
+  });
+  it('appends #runnable-cache when we set cache to true', function () {
+    var cmdStr = [
+      'ADD ["./asdf", "/"]',
+      'WORKDIR /',
+      'RUN apt-get install'
+    ].join('\n');
+
+    var file = new File(cmdStr);
+
+    file.commands[0].cache = true;
+
+
+    var str = file.toString();
+
+    expect(str).to.equal('#Start: File\n' + cmdStr + ' #runnable-cache\n#End');
   });
 });

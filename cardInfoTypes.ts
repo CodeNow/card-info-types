@@ -12,7 +12,7 @@ module ContainerItems {
   class DockerfileItem {
     name: string;
     path: string;
-    commands: string;
+    commands: Array<any>;
     type: string;
     id: string;
     fromServer: boolean;
@@ -45,13 +45,17 @@ module ContainerItems {
           // Remove add/chmod/run
           commandList.splice(0, 2);
         }
-        this.commands = commandList.map(function(item) {
-          return item.replace('RUN ', '');
-        }).join('\n');
+        this.commands = commandList.map((item) => {
+          return {
+            displayText: item.replace('RUN ', '').replace('#runnable-cache', '').trim(),
+            text: item,
+            cache: item.indexOf('#runnable-cache') > -1
+          };
+        });
       }
     }
     toString() {
-      this.commands = this.commands || '';
+      this.commands = this.commands || [];
       if (this.type === 'File') {
         this.path = this.path || '';
       } else {
@@ -60,25 +64,30 @@ module ContainerItems {
 
       var contents = 'ADD ["./' + this.name.trim() + '", "/' + this.path.trim() + '"]';
       var tempCommands = this.commands
-        .split('\n')
-        .filter((command) => !!(command.trim()));
+        .filter((command) => !!(command.text.trim()))
+        .map((command) => {
+          if (command.cache) {
+            command.text += ' #runnable-cache';
+          } else {
+            command.text = command.text.replace('#runnable-cache', '').trim();
+          }
+          return command;
+        });
 
       if (this.hasFindReplace) {
         tempCommands = [
-          'ADD ./translation_rules.sh translation_rules.sh',
-          'bash translation_rules.sh'
+          {
+            text: 'ADD ./translation_rules.sh translation_rules.sh'
+          }, {
+            text: 'RUN bash translation_rules.sh'
+          }
         ].concat(tempCommands);
       }
 
       if (tempCommands.length) {
         contents += '\nWORKDIR /' + this.path.trim() + '\n'
         + tempCommands
-          .map((command) => {
-            if (command.indexOf('ADD') === 0) {
-              return command;
-            }
-            return 'RUN ' + command;
-          })
+          .map((command) => command.text)
           .join('\n');
       }
 
