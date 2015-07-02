@@ -127,8 +127,8 @@ module ContainerItems {
     }
   }
   export class Packages extends ContainerItem {
-    public packageList: string;
-    preamble:  'RUN apt-get update -y && apt-get upgrade -y && apt-get ';
+    packageList: string;
+    private preamble:  'RUN apt-get update -y && apt-get upgrade -y && apt-get ';
     constructor(public commandStr: string) {
       this.type = 'Packages';
       super();
@@ -143,7 +143,6 @@ module ContainerItems {
       return this.wrapWithType(contents);
     }
     clone() {
-      console.log('Clone!');
       var packages = new Packages(this.commandStr);
       Object.keys(this).forEach((key) => packages[key] = this[key]);
       console.log(packages);

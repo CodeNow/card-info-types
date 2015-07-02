@@ -144,7 +144,6 @@ var ContainerItems;
         };
         Packages.prototype.clone = function () {
             var _this = this;
-            console.log('Clone!');
             var packages = new Packages(this.commandStr);
             Object.keys(this).forEach(function (key) { return packages[key] = _this[key]; });
             console.log(packages);
