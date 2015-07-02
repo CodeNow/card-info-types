@@ -14,6 +14,7 @@ it('sanity checks', function () {
   expect(types).to.have.property('File');
   expect(types).to.have.property('Repository');
   expect(types).to.have.property('MainRepository');
+  expect(types).to.have.property('Packages');
   expect(types).to.not.have.property('DockerfileItem');
 
   var file = new File();
