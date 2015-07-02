@@ -1,7 +1,7 @@
 'use strict';
 
 interface uuid {
-    v4: any;
+  v4: any;
 }
 
 declare var require: any;
@@ -9,16 +9,25 @@ declare var require: any;
 var uuid = require('uuid');
 
 module ContainerItems {
-  class DockerfileItem {
+  class ContainerItem {
     name: string;
     path: string;
-    commands: Array<any>;
     type: string;
     id: string;
     fromServer: boolean;
-    hasFindReplace: boolean;
     legacyADD: boolean;
+    wrapWithType(content: string) {
+      return '#Start: ' + this.type + '\n' +
+        content + '\n' +
+        '#End';
+    }
+  }
+
+  class DockerfileItem extends ContainerItem{
+    commands: Array<any>;
+    hasFindReplace: boolean;
     constructor(public commandStr?: string) {
+      super();
       this.id = uuid.v4();
       if (commandStr) {
         this.fromServer = true;
@@ -93,11 +102,6 @@ module ContainerItems {
 
       return this.wrapWithType(contents);
     }
-    wrapWithType(content: string) {
-      return '#Start: ' + this.type + '\n' +
-        content + '\n' +
-        '#End';
-    }
   }
 
   export class File extends DockerfileItem {
@@ -130,6 +134,29 @@ module ContainerItems {
     constructor(commandStr: string) {
       this.type = 'Main Repository';
       super(commandStr);
+    }
+  }
+  export class Packages extends ContainerItem {
+    packageList: string;
+    private preamble: string;
+    constructor(public commandStr: string) {
+      super();
+      this.preamble = 'RUN apt-get update -y && apt-get upgrade -y && apt-get ';
+      this.type = 'Packages';
+
+      if (commandStr) {
+        this.fromServer = true;
+        this.packageList = commandStr.replace(this.preamble, '');
+      }
+    }
+    toString() {
+      var contents = this.preamble + this.packageList;
+      return this.wrapWithType(contents);
+    }
+    clone() {
+      var packages = new Packages(this.commandStr);
+      Object.keys(this).forEach((key) => packages[key] = this[key]);
+      return packages;
     }
   }
 }

@@ -6,6 +6,7 @@ Parses a Dockerfile into Files & Repos
 
 Run:
 
+`npm i -g typescript`
 `tsc --module commonjs --watch cardInfoTypes.ts`
 
 Ideally, this will all be taken over by the backend

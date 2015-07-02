@@ -8,8 +8,20 @@ var __extends = this.__extends || function (d, b) {
 var uuid = require('uuid');
 var ContainerItems;
 (function (ContainerItems) {
-    var DockerfileItem = (function () {
+    var ContainerItem = (function () {
+        function ContainerItem() {
+        }
+        ContainerItem.prototype.wrapWithType = function (content) {
+            return '#Start: ' + this.type + '\n' +
+                content + '\n' +
+                '#End';
+        };
+        return ContainerItem;
+    })();
+    var DockerfileItem = (function (_super) {
+        __extends(DockerfileItem, _super);
         function DockerfileItem(commandStr) {
+            _super.call(this);
             this.commandStr = commandStr;
             this.id = uuid.v4();
             if (commandStr) {
@@ -81,13 +93,8 @@ var ContainerItems;
             }
             return this.wrapWithType(contents);
         };
-        DockerfileItem.prototype.wrapWithType = function (content) {
-            return '#Start: ' + this.type + '\n' +
-                content + '\n' +
-                '#End';
-        };
         return DockerfileItem;
-    })();
+    })(ContainerItem);
     var File = (function (_super) {
         __extends(File, _super);
         function File(commandStr) {
@@ -130,5 +137,30 @@ var ContainerItems;
         return MainRepository;
     })(Repository);
     ContainerItems.MainRepository = MainRepository;
+    var Packages = (function (_super) {
+        __extends(Packages, _super);
+        function Packages(commandStr) {
+            _super.call(this);
+            this.commandStr = commandStr;
+            this.preamble = 'RUN apt-get update -y && apt-get upgrade -y && apt-get ';
+            this.type = 'Packages';
+            if (commandStr) {
+                this.fromServer = true;
+                this.packageList = commandStr.replace(this.preamble, '');
+            }
+        }
+        Packages.prototype.toString = function () {
+            var contents = this.preamble + this.packageList;
+            return this.wrapWithType(contents);
+        };
+        Packages.prototype.clone = function () {
+            var _this = this;
+            var packages = new Packages(this.commandStr);
+            Object.keys(this).forEach(function (key) { return packages[key] = _this[key]; });
+            return packages;
+        };
+        return Packages;
+    })(ContainerItem);
+    ContainerItems.Packages = Packages;
 })(ContainerItems || (ContainerItems = {}));
 module.exports = ContainerItems;

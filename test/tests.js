@@ -9,11 +9,13 @@ var uuidReg = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/;
 var File = types.File;
 var Repository = types.Repository;
 var MainRepository = types.MainRepository;
+var Packages = types.Packages;
 
 it('sanity checks', function () {
   expect(types).to.have.property('File');
   expect(types).to.have.property('Repository');
   expect(types).to.have.property('MainRepository');
+  expect(types).to.have.property('Packages');
   expect(types).to.not.have.property('DockerfileItem');
 
   var file = new File();
@@ -148,5 +150,28 @@ describe('caching', function () {
     var str = file.toString();
 
     expect(str).to.equal('#Start: File\n' + cmdStr + ' #runnable-cache\n#End');
+  });
+});
+
+describe('Packages', function () {
+  var packageList = 'test ssh dnsutils';
+  var preamble = 'RUN apt-get update -y && apt-get upgrade -y && apt-get ';
+  it('should parse preoperly with a commandStr', function () {
+    var packages = new Packages(preamble + packageList);
+    expect(packages.packageList).to.equal(packageList);
+  });
+  it('should handle no commandStr', function () {
+    var packages = new Packages();
+    expect(packages.packageList).to.not.be.ok;
+  });
+  it('should clone properly', function () {
+    var packages = new Packages(preamble + packageList);
+    packages.packageList = 'test';
+    var cloned = packages.clone();
+    expect(cloned.packageList).to.equal('test');
+  });
+  it('should have a toString method that results in the preambled results', function () {
+    var packages = new Packages(preamble + packageList);
+    expect(packages.toString()).to.equal('#Start: Packages\n'+preamble + packageList+'\n#End');
   });
 });
