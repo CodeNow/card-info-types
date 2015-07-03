@@ -162,7 +162,7 @@ var ContainerItems;
         function Packages(commandStr) {
             _super.call(this);
             this.commandStr = commandStr;
-            this.preamble = 'RUN apt-get update -y && apt-get upgrade -y && apt-get install ';
+            this.preamble = 'RUN apt-get update -y && apt-get upgrade -y && apt-get install -y ';
             this.type = 'Packages';
             if (commandStr) {
                 this.fromServer = true;
@@ -170,8 +170,12 @@ var ContainerItems;
             }
         }
         Packages.prototype.toString = function () {
-            var contents = this.preamble + this.packageList;
-            return this.wrapWithType(contents);
+            var cleanedPackageList = this.packageList.replace(/\s+/g, ' ');
+            if (cleanedPackageList.length > 1) {
+                var contents = this.preamble + cleanedPackageList;
+                return this.wrapWithType(contents);
+            }
+            return '';
         };
         Packages.prototype.clone = function () {
             var _this = this;
