@@ -140,8 +140,12 @@ var ContainerItems;
             }
         }
         Packages.prototype.toString = function () {
-            var contents = this.preamble + this.packageList.replace(/\s+/g, ' ');
-            return this.wrapWithType(contents);
+            var cleanedPackageList = this.packageList.replace(/\s+/g, ' ');
+            if (cleanedPackageList.length > 1) {
+                var contents = this.preamble + cleanedPackageList;
+                return this.wrapWithType(contents);
+            }
+            return '';
         };
         Packages.prototype.clone = function () {
             var _this = this;
