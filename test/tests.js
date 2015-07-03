@@ -117,7 +117,7 @@ describe('toString', function () {
 
 describe('Packages', function () {
   var packageList = 'test ssh dnsutils';
-  var preamble = 'RUN apt-get update -y && apt-get upgrade -y && apt-get install ';
+  var preamble = 'RUN apt-get update -y && apt-get upgrade -y && apt-get install -y ';
   it('should parse preoperly with a commandStr', function () {
     var packages = new Packages(preamble + packageList);
     expect(packages.packageList).to.equal(packageList);
@@ -134,6 +134,10 @@ describe('Packages', function () {
   });
   it('should have a toString method that results in the preambled results', function () {
     var packages = new Packages(preamble + packageList);
+    expect(packages.toString()).to.equal('#Start: Packages\n'+preamble + packageList+'\n#End');
+  });
+  it('should have a toString method that results in the preambled results and strip out newlines', function () {
+    var packages = new Packages(preamble + packageList.split(' ').join(' \n\n'));
     expect(packages.toString()).to.equal('#Start: Packages\n'+preamble + packageList+'\n#End');
   });
 });

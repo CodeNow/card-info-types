@@ -132,7 +132,7 @@ module ContainerItems {
     private preamble: string;
     constructor(public commandStr: string) {
       super();
-      this.preamble = 'RUN apt-get update -y && apt-get upgrade -y && apt-get install ';
+      this.preamble = 'RUN apt-get update -y && apt-get upgrade -y && apt-get install -y ';
       this.type = 'Packages';
 
       if (commandStr) {
@@ -141,8 +141,12 @@ module ContainerItems {
       }
     }
     toString() {
-      var contents = this.preamble + this.packageList;
-      return this.wrapWithType(contents);
+      var cleanedPackageList = this.packageList.replace(/\s+/g, ' ');
+      if (cleanedPackageList.length > 1) {
+        var contents = this.preamble + cleanedPackageList;
+        return this.wrapWithType(contents);
+      }
+      return '';
     }
     clone() {
       var packages = new Packages(this.commandStr);
