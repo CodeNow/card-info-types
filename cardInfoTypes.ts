@@ -141,8 +141,11 @@ module ContainerItems {
       }
     }
     toString() {
-      var contents = this.preamble + this.packageList.replace(/\s+/g, ' ');
-      return this.wrapWithType(contents);
+      if (this.packageList.replace(/\s+/g, ' ').length > 0) {
+        var contents = this.preamble + this.packageList.replace(/\s+/g, ' ');
+        return this.wrapWithType(contents);
+      }
+      return '';
     }
     clone() {
       var packages = new Packages(this.commandStr);
