@@ -18,6 +18,40 @@ var ContainerItems;
         };
         return ContainerItem;
     })();
+    var Command = (function () {
+        function Command(commandStr) {
+            var instructionsRegex = /^(CMD|FROM|MAINTAINER|RUN|EXPOSE|ENV|ADD|ENTRYPOINT|VOLUME|USER|WORKDIR|ONBUILD|COPY)(\s*)/i;
+            var tmpResult = commandStr.match(instructionsRegex);
+            if (!tmpResult) {
+                throw new Error('Proper Docker command not found in line ' + commandStr);
+            }
+            this.command = tmpResult[1];
+            commandStr = commandStr.replace(tmpResult[0], '');
+            if (commandStr.indexOf('#runnable-cache') > -1) {
+                this.cache = true;
+                commandStr = commandStr.replace('#runnable-cache', '');
+            }
+            else {
+                this.cache = false;
+            }
+            this.body = commandStr.trim();
+        }
+        Command.prototype.toString = function () {
+            var arr = [
+                this.command,
+                this.body
+            ];
+            if (this.cache) {
+                arr.push('#runnable-cache');
+            }
+            return arr.join(' ');
+        };
+        Command.prototype.clone = function () {
+            return new Command(this.toString());
+        };
+        return Command;
+    })();
+    ContainerItems.Command = Command;
     var DockerfileItem = (function (_super) {
         __extends(DockerfileItem, _super);
         function DockerfileItem(commandStr) {
@@ -47,12 +81,10 @@ var ContainerItems;
                     // Remove add/chmod/run
                     commandList.splice(0, 2);
                 }
-                this.commands = commandList.map(function (item) {
-                    return {
-                        displayText: item.replace('RUN ', '').replace('#runnable-cache', '').trim(),
-                        text: item,
-                        cache: item.indexOf('#runnable-cache') > -1
-                    };
+                this.commands = commandList
+                    .filter(Boolean)
+                    .map(function (item) {
+                    return new Command(item);
                 });
             }
         }
@@ -65,34 +97,22 @@ var ContainerItems;
                 this.path = this.path || this.name;
             }
             var contents = 'ADD ["./' + this.name.trim() + '", "/' + this.path.trim() + '"]';
-            var tempCommands = this.commands
-                .filter(function (command) { return !!(command.text.trim()); })
-                .map(function (command) {
-                if (command.cache) {
-                    command.text += ' #runnable-cache';
-                }
-                else {
-                    command.text = command.text.replace('#runnable-cache', '').trim();
-                }
-                return command;
-            });
+            var tempCommands = this.commands;
             if (this.hasFindReplace) {
-                tempCommands = [
-                    {
-                        text: 'ADD ./translation_rules.sh translation_rules.sh'
-                    }, {
-                        text: 'RUN bash translation_rules.sh'
-                    }
-                ].concat(tempCommands);
+                tempCommands = DockerfileItem.translationCommands.concat(tempCommands);
             }
             if (tempCommands.length) {
                 contents += '\nWORKDIR /' + this.path.trim() + '\n'
                     + tempCommands
-                        .map(function (command) { return command.text; })
+                        .map(function (command) { return command.toString().trim(); })
                         .join('\n');
             }
             return this.wrapWithType(contents);
         };
+        DockerfileItem.translationCommands = [
+            new Command('ADD ./translation_rules.sh translation_rules.sh'),
+            new Command('RUN bash translation_rules.sh')
+        ];
         return DockerfileItem;
     })(ContainerItem);
     var File = (function (_super) {
