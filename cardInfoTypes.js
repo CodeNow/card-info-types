@@ -140,9 +140,8 @@ var ContainerItems;
             }
         }
         Packages.prototype.toString = function () {
-            var cleanedPackageList = this.packageList.replace(/\s+/g, ' ');
-            if (cleanedPackageList.length > 1) {
-                var contents = this.preamble + cleanedPackageList;
+            if (this.packageList.replace(/\s+/g, ' ').length > 0) {
+                var contents = this.preamble + this.packageList.replace(/\s+/g, ' ');
                 return this.wrapWithType(contents);
             }
             return '';
