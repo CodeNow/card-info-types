@@ -141,7 +141,7 @@ module ContainerItems {
       }
     }
     toString() {
-      var contents = this.preamble + this.packageList;
+      var contents = this.preamble + this.packageList.replace(/\s+/g, ' ');
       return this.wrapWithType(contents);
     }
     clone() {

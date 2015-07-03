@@ -140,7 +140,7 @@ var ContainerItems;
             }
         }
         Packages.prototype.toString = function () {
-            var contents = this.preamble + this.packageList;
+            var contents = this.preamble + this.packageList.replace(/\s+/g, ' ');
             return this.wrapWithType(contents);
         };
         Packages.prototype.clone = function () {

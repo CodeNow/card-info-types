@@ -136,4 +136,8 @@ describe('Packages', function () {
     var packages = new Packages(preamble + packageList);
     expect(packages.toString()).to.equal('#Start: Packages\n'+preamble + packageList+'\n#End');
   });
+  it('should have a toString method that results in the preambled results and strip out newlines', function () {
+    var packages = new Packages(preamble + packageList.split(' ').join(' \n\n'));
+    expect(packages.toString()).to.equal('#Start: Packages\n'+preamble + packageList+'\n#End');
+  });
 });
