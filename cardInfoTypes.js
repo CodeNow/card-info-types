@@ -104,7 +104,7 @@ var ContainerItems;
             if (tempCommands.length) {
                 contents += '\nWORKDIR /' + this.path.trim() + '\n'
                     + tempCommands
-                        .map(function (command) { return command.toString().trim(); })
+                        .map(function (command) { return command.toString(); })
                         .join('\n');
             }
             return this.wrapWithType(contents);

@@ -123,7 +123,7 @@ module ContainerItems {
       if (tempCommands.length) {
         contents += '\nWORKDIR /' + this.path.trim() + '\n'
         + tempCommands
-          .map((command) => command.toString().trim())
+          .map((command) => command.toString())
           .join('\n');
       }
 
