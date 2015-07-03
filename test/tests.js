@@ -117,7 +117,7 @@ describe('toString', function () {
 
 describe('Packages', function () {
   var packageList = 'test ssh dnsutils';
-  var preamble = 'RUN apt-get update -y && apt-get upgrade -y && apt-get install ';
+  var preamble = 'RUN apt-get update -y && apt-get upgrade -y && apt-get install -y ';
   it('should parse preoperly with a commandStr', function () {
     var packages = new Packages(preamble + packageList);
     expect(packages.packageList).to.equal(packageList);

@@ -132,7 +132,7 @@ module ContainerItems {
     private preamble: string;
     constructor(public commandStr: string) {
       super();
-      this.preamble = 'RUN apt-get update -y && apt-get upgrade -y && apt-get install ';
+      this.preamble = 'RUN apt-get update -y && apt-get upgrade -y && apt-get install -y ';
       this.type = 'Packages';
 
       if (commandStr) {
