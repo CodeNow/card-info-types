@@ -64,7 +64,7 @@ module ContainerItems {
   }
 
   class DockerfileItem extends ContainerItem{
-    commands: Array<any>;
+    commands: Array<Command>;
     hasFindReplace: boolean;
     private static translationCommands = [
       new Command('ADD ./translation_rules.sh translation_rules.sh'),
@@ -168,7 +168,7 @@ module ContainerItems {
     private preamble: string;
     constructor(public commandStr: string) {
       super();
-      this.preamble = 'RUN apt-get update -y && apt-get upgrade -y && apt-get ';
+      this.preamble = 'RUN apt-get update -y && apt-get upgrade -y && apt-get install ';
       this.type = 'Packages';
 
       if (commandStr) {
