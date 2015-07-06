@@ -125,7 +125,7 @@ describe('caching', function () {
     var cmdStr = [
       'ADD ["./asdf", "/"]',
       'WORKDIR /',
-      'RUN apt-get install #runnable-cache'
+      'RUN apt-get install # runnable-cache'
     ].join('\n');
 
     var file = new File(cmdStr);
@@ -134,7 +134,7 @@ describe('caching', function () {
     expect(file.commands[0].body).to.equal('apt-get install');
     expect(file.commands[0].cache).to.be.true;
   });
-  it('appends #runnable-cache when we set cache to true', function () {
+  it('appends # runnable-cache when we set cache to true', function () {
     var cmdStr = [
       'ADD ["./asdf", "/"]',
       'WORKDIR /',
@@ -148,7 +148,7 @@ describe('caching', function () {
 
     var str = file.toString();
 
-    expect(str).to.equal('#Start: File\n' + cmdStr + ' #runnable-cache\n#End');
+    expect(str).to.equal('#Start: File\n' + cmdStr + ' # runnable-cache\n#End');
   });
 });
 

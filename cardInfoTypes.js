@@ -27,9 +27,9 @@ var ContainerItems;
             }
             this.command = tmpResult[1];
             commandStr = commandStr.replace(tmpResult[0], '');
-            if (commandStr.indexOf('#runnable-cache') > -1) {
+            if (commandStr.indexOf('# runnable-cache') > -1) {
                 this.cache = true;
-                commandStr = commandStr.replace('#runnable-cache', '');
+                commandStr = commandStr.replace('# runnable-cache', '');
             }
             else {
                 this.cache = false;
@@ -42,7 +42,7 @@ var ContainerItems;
                 this.body
             ];
             if (this.cache) {
-                arr.push('#runnable-cache');
+                arr.push('# runnable-cache');
             }
             return arr.join(' ');
         };
