@@ -162,6 +162,8 @@ var ContainerItems;
         function Packages(commandStr) {
             _super.call(this);
             this.commandStr = commandStr;
+            // Initialize packageList to an empty string so we can trigger a replace on it later on
+            this.packageList = '';
             this.preamble = 'RUN apt-get update -y && apt-get upgrade -y && apt-get install -y ';
             this.type = 'Packages';
             if (commandStr) {

@@ -185,6 +185,7 @@ describe('Packages', function () {
   it('should handle no commandStr', function () {
     var packages = new Packages();
     expect(packages.packageList).to.not.be.ok;
+    expect(packages.toString()).to.equal('');
   });
   it('should clone properly', function () {
     var packages = new Packages(preamble + packageList);
