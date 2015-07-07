@@ -28,8 +28,8 @@ module ContainerItems {
     command: string;
     body: string;
     cache: boolean;
-    constructor(commandStr: string) {
-      if (commandStr.trim() === '') {
+    constructor(commandStr?: string) {
+      if (!commandStr || commandStr.trim() === '') {
         this.command = '';
         this.body = '';
         this.cache = false;

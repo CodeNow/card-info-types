@@ -20,7 +20,7 @@ var ContainerItems;
     })();
     var Command = (function () {
         function Command(commandStr) {
-            if (commandStr.trim() === '') {
+            if (!commandStr || commandStr.trim() === '') {
                 this.command = '';
                 this.body = '';
                 this.cache = false;

@@ -186,7 +186,13 @@ describe('Command', function () {
     expect(cmd.body).to.equal('');
     expect(cmd.cache).to.equal(false);
     expect(cmd.command).to.equal('');
-  })
+  });
+  it('sets the body to empty string when given nothing', function () {
+    var cmd = new Command();
+    expect(cmd.body).to.equal('');
+    expect(cmd.cache).to.equal(false);
+    expect(cmd.command).to.equal('');
+  });
 });
 
 describe('Packages', function () {
