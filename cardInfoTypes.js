@@ -20,6 +20,12 @@ var ContainerItems;
     })();
     var Command = (function () {
         function Command(commandStr) {
+            if (commandStr.trim() === '') {
+                this.command = '';
+                this.body = '';
+                this.cache = false;
+                return;
+            }
             var instructionsRegex = /^(CMD|FROM|MAINTAINER|RUN|EXPOSE|ENV|ADD|ENTRYPOINT|VOLUME|USER|WORKDIR|ONBUILD|COPY)(\s*)/i;
             var tmpResult = commandStr.match(instructionsRegex);
             if (!tmpResult) {
@@ -37,6 +43,9 @@ var ContainerItems;
             this.body = commandStr.trim();
         }
         Command.prototype.toString = function () {
+            if (!this.body) {
+                return '';
+            }
             var arr = [
                 this.command,
                 this.body
@@ -82,7 +91,6 @@ var ContainerItems;
                     commandList.splice(0, 2);
                 }
                 this.commands = commandList
-                    .filter(Boolean)
                     .map(function (item) {
                     return new Command(item);
                 });

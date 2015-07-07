@@ -29,6 +29,12 @@ module ContainerItems {
     body: string;
     cache: boolean;
     constructor(commandStr: string) {
+      if (commandStr.trim() === '') {
+        this.command = '';
+        this.body = '';
+        this.cache = false;
+        return;
+      }
       let instructionsRegex = /^(CMD|FROM|MAINTAINER|RUN|EXPOSE|ENV|ADD|ENTRYPOINT|VOLUME|USER|WORKDIR|ONBUILD|COPY)(\s*)/i;
 
       let tmpResult = commandStr.match(instructionsRegex);
@@ -49,6 +55,9 @@ module ContainerItems {
       this.body = commandStr.trim();
     }
     toString() {
+      if (!this.body) {
+        return '';
+      }
       let arr = [
         this.command,
         this.body
@@ -99,7 +108,6 @@ module ContainerItems {
           commandList.splice(0, 2);
         }
         this.commands = commandList
-        .filter(Boolean)
         .map((item) => {
           return new Command(item);
         });

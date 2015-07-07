@@ -173,6 +173,20 @@ describe('Command', function () {
     expect(cmd1.cache).to.equal(cmd0.cache);
     expect(cmd0 === cmd1).to.be.false;
   });
+  it('stringifies into an empty string when there is no body', function () {
+    var cmdStr = 'RUN apt-get install';
+
+    var cmd = new Command(cmdStr);
+    cmd.body = '';
+
+    expect(cmd.toString()).to.equal('');
+  });
+  it('sets the body to empty string when given an empty string', function () {
+    var cmd = new Command('');
+    expect(cmd.body).to.equal('');
+    expect(cmd.cache).to.equal(false);
+    expect(cmd.command).to.equal('');
+  })
 });
 
 describe('Packages', function () {
