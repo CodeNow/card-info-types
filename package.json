@@ -1,6 +1,6 @@
 {
   "name": "card-info-types",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Classes for parsing through Runnable-annotated Dockerfiles",
   "main": "cardInfoTypes.js",
   "scripts": {
