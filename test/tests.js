@@ -10,13 +10,16 @@ var File = types.File;
 var Repository = types.Repository;
 var MainRepository = types.MainRepository;
 var Packages = types.Packages;
+var Command = types.Command;
 
 it('sanity checks', function () {
   expect(types).to.have.property('File');
   expect(types).to.have.property('Repository');
   expect(types).to.have.property('MainRepository');
   expect(types).to.have.property('Packages');
+  expect(types).to.have.property('Command');
   expect(types).to.not.have.property('DockerfileItem');
+  expect(types).to.not.have.property('ContainerItem');
 
   var file = new File();
   var repo = new Repository();
@@ -42,7 +45,7 @@ describe('main constructor', function () {
       expect(file.id).to.match(uuidReg);
       expect(file.name).to.equal('asdf');
       expect(file.path).to.equal('');
-      expect(file.commands).to.equal('');
+      expect(file.commands).to.deep.equal([]);
       expect(file).to.not.have.property('hasFindReplace');
       expect(file).to.not.have.property('legacyADD');
     });
@@ -67,7 +70,9 @@ describe('main constructor', function () {
       expect(file.id).to.match(uuidReg);
       expect(file.name).to.equal('asdf');
       expect(file.path).to.equal('');
-      expect(file.commands).to.equal('apt-get install');
+      expect(file.commands[0].command).to.equal('RUN');
+      expect(file.commands[0].body).to.equal('apt-get install');
+      expect(file.commands[0].cache).to.be.false;
       expect(file).to.not.have.property('hasFindReplace');
       expect(file).to.not.have.property('legacyADD');
     });
@@ -112,6 +117,81 @@ describe('toString', function () {
     var repo = new Repository(cmdStr);
 
     expect(repo.toString()).to.equal('#Start: Repository\n' + cmdStr + '\n#End');
+  });
+});
+
+describe('caching', function () {
+  it('notes the existence of the runnable-cache comment', function () {
+    var cmdStr = [
+      'ADD ["./asdf", "/"]',
+      'WORKDIR /',
+      'RUN apt-get install # runnable-cache'
+    ].join('\n');
+
+    var file = new File(cmdStr);
+
+    expect(file.commands[0].command).to.equal('RUN');
+    expect(file.commands[0].body).to.equal('apt-get install');
+    expect(file.commands[0].cache).to.be.true;
+  });
+  it('appends # runnable-cache when we set cache to true', function () {
+    var cmdStr = [
+      'ADD ["./asdf", "/"]',
+      'WORKDIR /',
+      'RUN apt-get install'
+    ].join('\n');
+
+    var file = new File(cmdStr);
+
+    file.commands[0].cache = true;
+
+
+    var str = file.toString();
+
+    expect(str).to.equal('#Start: File\n' + cmdStr + ' # runnable-cache\n#End');
+  });
+});
+
+describe('Command', function () {
+  it('throws an error without a proper command', function () {
+    var cmdStr = 'Hello there';
+
+    function throwing() {
+      var cmd = new Command(cmdStr);
+    }
+
+    expect(throwing).to.throw(Error);
+  });
+  it('clones a new object', function () {
+    var cmdStr = 'RUN apt-get install';
+
+    var cmd0 = new Command(cmdStr);
+    var cmd1 = cmd0.clone();
+
+    expect(cmd1.command).to.equal(cmd0.command);
+    expect(cmd1.body).to.equal(cmd0.body);
+    expect(cmd1.cache).to.equal(cmd0.cache);
+    expect(cmd0 === cmd1).to.be.false;
+  });
+  it('stringifies into an empty string when there is no body', function () {
+    var cmdStr = 'RUN apt-get install';
+
+    var cmd = new Command(cmdStr);
+    cmd.body = '';
+
+    expect(cmd.toString()).to.equal('');
+  });
+  it('sets the body to empty string when given an empty string', function () {
+    var cmd = new Command('');
+    expect(cmd.body).to.equal('');
+    expect(cmd.cache).to.equal(false);
+    expect(cmd.command).to.equal('');
+  });
+  it('sets the body to empty string when given nothing', function () {
+    var cmd = new Command();
+    expect(cmd.body).to.equal('');
+    expect(cmd.cache).to.equal(false);
+    expect(cmd.command).to.equal('');
   });
 });
 

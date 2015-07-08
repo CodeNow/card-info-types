@@ -4,9 +4,10 @@ interface uuid {
   v4: any;
 }
 
-declare var require: any;
+declare let require: any;
 
-var uuid = require('uuid');
+let uuid = require('uuid');
+
 
 module ContainerItems {
   class ContainerItem {
@@ -23,27 +24,79 @@ module ContainerItems {
     }
   }
 
+  export class Command {
+    command: string;
+    body: string;
+    cache: boolean;
+    constructor(commandStr?: string) {
+      if (!commandStr || commandStr.trim() === '') {
+        this.command = '';
+        this.body = '';
+        this.cache = false;
+        return;
+      }
+      let instructionsRegex = /^(CMD|FROM|MAINTAINER|RUN|EXPOSE|ENV|ADD|ENTRYPOINT|VOLUME|USER|WORKDIR|ONBUILD|COPY)(\s*)/i;
+
+      let tmpResult = commandStr.match(instructionsRegex);
+      if (!tmpResult) {
+        throw new Error('Proper Docker command not found in line ' + commandStr);
+      }
+      this.command = tmpResult[1];
+
+      commandStr = commandStr.replace(tmpResult[0], '');
+
+      if (commandStr.indexOf('# runnable-cache') > -1) {
+        this.cache = true;
+        commandStr = commandStr.replace('# runnable-cache', '');
+      } else {
+        this.cache = false;
+      }
+
+      this.body = commandStr.trim();
+    }
+    toString() {
+      if (!this.body) {
+        return '';
+      }
+      let arr = [
+        this.command,
+        this.body
+      ];
+      if (this.cache) {
+        arr.push('# runnable-cache');
+      }
+      return arr.join(' ');
+    }
+    clone() {
+      return new Command(this.toString());
+    }
+  }
+
   class DockerfileItem extends ContainerItem{
-    commands: string;
+    commands: Array<Command>;
     hasFindReplace: boolean;
+    private static translationCommands = [
+      new Command('ADD ./translation_rules.sh translation_rules.sh'),
+      new Command('RUN bash translation_rules.sh')
+    ];
     constructor(public commandStr?: string) {
       super();
       this.id = uuid.v4();
       if (commandStr) {
         this.fromServer = true;
-        var commandList = commandStr.split('\n');
-        var add = /^ADD (.*)/.exec(commandList[0]);
+        let commandList = commandStr.split('\n');
+        let add = /^ADD (.*)/.exec(commandList[0]);
 
         try {
           // ADD paramaters are in array syntax
-          var params = JSON.parse(add[1]);
+          let params = JSON.parse(add[1]);
 
           this.name = params[0].replace('./', '');
           this.path = params[1].replace('/', '');
         } catch (e) {
           // ADD is *not* in array syntax (legacy)
           this.legacyADD = true;
-          var commands = /^ADD ((?:\\\s|[^\s])*) ((?:\\\s|[^\s])*)/.exec(commandList[0]);
+          let commands = /^ADD ((?:\\\s|[^\s])*) ((?:\\\s|[^\s])*)/.exec(commandList[0]);
           this.name = commands[1].replace('./', '');
           this.path = commands[2].replace('/', '');
         }
@@ -54,40 +107,31 @@ module ContainerItems {
           // Remove add/chmod/run
           commandList.splice(0, 2);
         }
-        this.commands = commandList.map(function(item) {
-          return item.replace('RUN ', '');
-        }).join('\n');
+        this.commands = commandList
+        .map((item) => {
+          return new Command(item);
+        });
       }
     }
     toString() {
-      this.commands = this.commands || '';
+      this.commands = this.commands || [];
       if (this.type === 'File') {
         this.path = this.path || '';
       } else {
         this.path = this.path || this.name;
       }
 
-      var contents = 'ADD ["./' + this.name.trim() + '", "/' + this.path.trim() + '"]';
-      var tempCommands = this.commands
-        .split('\n')
-        .filter((command) => !!(command.trim()));
+      let contents = 'ADD ["./' + this.name.trim() + '", "/' + this.path.trim() + '"]';
+      let tempCommands = this.commands;
 
       if (this.hasFindReplace) {
-        tempCommands = [
-          'ADD ./translation_rules.sh translation_rules.sh',
-          'bash translation_rules.sh'
-        ].concat(tempCommands);
+        tempCommands = DockerfileItem.translationCommands.concat(tempCommands);
       }
 
       if (tempCommands.length) {
         contents += '\nWORKDIR /' + this.path.trim() + '\n'
         + tempCommands
-          .map((command) => {
-            if (command.indexOf('ADD') === 0) {
-              return command;
-            }
-            return 'RUN ' + command;
-          })
+          .map((command) => command.toString())
           .join('\n');
       }
 
@@ -101,7 +145,7 @@ module ContainerItems {
       super(commandStr);
     }
     clone() {
-      var myFile = new File(this.commandStr);
+      let myFile = new File(this.commandStr);
       Object.keys(this).forEach((key) => myFile[key] = this[key]);
       return myFile;
     }
@@ -116,7 +160,7 @@ module ContainerItems {
       super(commandStr);
     }
     clone() {
-      var repo = new Repository(this.commandStr);
+      let repo = new Repository(this.commandStr);
       Object.keys(this).forEach((key) => repo[key] = this[key]);
       return repo;
     }
@@ -143,15 +187,15 @@ module ContainerItems {
       }
     }
     toString() {
-      var cleanedPackageList = this.packageList.replace(/\s+/g, ' ');
+      let cleanedPackageList = this.packageList.replace(/\s+/g, ' ');
       if (cleanedPackageList.length > 1) {
-        var contents = this.preamble + cleanedPackageList;
+        let contents = this.preamble + cleanedPackageList;
         return this.wrapWithType(contents);
       }
       return '';
     }
     clone() {
-      var packages = new Packages(this.commandStr);
+      let packages = new Packages(this.commandStr);
       Object.keys(this).forEach((key) => packages[key] = this[key]);
       return packages;
     }

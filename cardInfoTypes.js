@@ -18,6 +18,49 @@ var ContainerItems;
         };
         return ContainerItem;
     })();
+    var Command = (function () {
+        function Command(commandStr) {
+            if (!commandStr || commandStr.trim() === '') {
+                this.command = '';
+                this.body = '';
+                this.cache = false;
+                return;
+            }
+            var instructionsRegex = /^(CMD|FROM|MAINTAINER|RUN|EXPOSE|ENV|ADD|ENTRYPOINT|VOLUME|USER|WORKDIR|ONBUILD|COPY)(\s*)/i;
+            var tmpResult = commandStr.match(instructionsRegex);
+            if (!tmpResult) {
+                throw new Error('Proper Docker command not found in line ' + commandStr);
+            }
+            this.command = tmpResult[1];
+            commandStr = commandStr.replace(tmpResult[0], '');
+            if (commandStr.indexOf('# runnable-cache') > -1) {
+                this.cache = true;
+                commandStr = commandStr.replace('# runnable-cache', '');
+            }
+            else {
+                this.cache = false;
+            }
+            this.body = commandStr.trim();
+        }
+        Command.prototype.toString = function () {
+            if (!this.body) {
+                return '';
+            }
+            var arr = [
+                this.command,
+                this.body
+            ];
+            if (this.cache) {
+                arr.push('# runnable-cache');
+            }
+            return arr.join(' ');
+        };
+        Command.prototype.clone = function () {
+            return new Command(this.toString());
+        };
+        return Command;
+    })();
+    ContainerItems.Command = Command;
     var DockerfileItem = (function (_super) {
         __extends(DockerfileItem, _super);
         function DockerfileItem(commandStr) {
@@ -47,13 +90,14 @@ var ContainerItems;
                     // Remove add/chmod/run
                     commandList.splice(0, 2);
                 }
-                this.commands = commandList.map(function (item) {
-                    return item.replace('RUN ', '');
-                }).join('\n');
+                this.commands = commandList
+                    .map(function (item) {
+                    return new Command(item);
+                });
             }
         }
         DockerfileItem.prototype.toString = function () {
-            this.commands = this.commands || '';
+            this.commands = this.commands || [];
             if (this.type === 'File') {
                 this.path = this.path || '';
             }
@@ -61,28 +105,22 @@ var ContainerItems;
                 this.path = this.path || this.name;
             }
             var contents = 'ADD ["./' + this.name.trim() + '", "/' + this.path.trim() + '"]';
-            var tempCommands = this.commands
-                .split('\n')
-                .filter(function (command) { return !!(command.trim()); });
+            var tempCommands = this.commands;
             if (this.hasFindReplace) {
-                tempCommands = [
-                    'ADD ./translation_rules.sh translation_rules.sh',
-                    'bash translation_rules.sh'
-                ].concat(tempCommands);
+                tempCommands = DockerfileItem.translationCommands.concat(tempCommands);
             }
             if (tempCommands.length) {
                 contents += '\nWORKDIR /' + this.path.trim() + '\n'
                     + tempCommands
-                        .map(function (command) {
-                        if (command.indexOf('ADD') === 0) {
-                            return command;
-                        }
-                        return 'RUN ' + command;
-                    })
+                        .map(function (command) { return command.toString(); })
                         .join('\n');
             }
             return this.wrapWithType(contents);
         };
+        DockerfileItem.translationCommands = [
+            new Command('ADD ./translation_rules.sh translation_rules.sh'),
+            new Command('RUN bash translation_rules.sh')
+        ];
         return DockerfileItem;
     })(ContainerItem);
     var File = (function (_super) {

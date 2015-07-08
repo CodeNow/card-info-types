@@ -5,8 +5,9 @@
   "main": "cardInfoTypes.js",
   "scripts": {
     "start": "tsc --module commonjs --watch cardInfoTypes.ts",
+    "compile": "tsc --module commonjs cardInfoTypes.ts",
     "test": "mocha -R nyan",
-    "coverage": "istanbul cover _mocha -- -u exports -R nyan test/tests.js"
+    "coverage": "istanbul cover _mocha -- -u exports -R nyan test/tests.js && open coverage/lcov-report/cardInfoTypes/cardInfoTypes.js.html"
   },
   "private": true,
   "author": "Runnable",
