@@ -105,7 +105,7 @@ describe('toString', function () {
 
     expect(file.toString()).to.equal('#Start: File\n' + cmdStr + '\n#End');
   });
-  it('adds translation rules if needed', function () {
+  it('removes translation rules if needed', function () {
     var cmdStr = [
       'ADD ["./asdf", "/asdf"]',
       'WORKDIR /asdf',
@@ -114,9 +114,15 @@ describe('toString', function () {
       'RUN apt-get install'
     ].join('\n');
 
+    var newCmdStr = [
+      'ADD ["./asdf", "/asdf"]',
+      'WORKDIR /asdf',
+      'RUN apt-get install'
+    ].join('\n');
+
     var repo = new Repository(cmdStr);
 
-    expect(repo.toString()).to.equal('#Start: Repository\n' + cmdStr + '\n#End');
+    expect(repo.toString()).to.equal('#Start: Repository\n' + newCmdStr + '\n#End');
   });
 });
 
