@@ -196,5 +196,30 @@ var ContainerItems;
         return Packages;
     })(ContainerItem);
     ContainerItems.Packages = Packages;
+    var SSHKey = (function (_super) {
+        __extends(SSHKey, _super);
+        function SSHKey(commandStr) {
+            this.type = 'SSH Key';
+            this.path = "root/.ssh/";
+            _super.call(this, commandStr);
+        }
+        SSHKey.prototype.toString = function () {
+            var keyName = this.name.trim();
+            this.commands = [
+                new Command('RUN chmod 0500 ' + keyName + ' ' +
+                    '&& echo "IdentityFile /root/.ssh/' + keyName + '" >> /etc/ssh/ssh_config ' +
+                    '&& ssh-keyscan -H github.com > /etc/ssh/ssh_known_hosts')
+            ];
+            return _super.prototype.toString.call(this);
+        };
+        SSHKey.prototype.clone = function () {
+            var _this = this;
+            var sshKey = new SSHKey(this.commandStr);
+            Object.keys(this).forEach(function (key) { return sshKey[key] = _this[key]; });
+            return sshKey;
+        };
+        return SSHKey;
+    })(DockerfileItem);
+    ContainerItems.SSHKey = SSHKey;
 })(ContainerItems || (ContainerItems = {}));
 module.exports = ContainerItems;

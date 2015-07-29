@@ -200,6 +200,30 @@ module ContainerItems {
       return packages;
     }
   }
+
+  export class SSHKey extends DockerfileItem {
+    constructor(commandStr: string){
+      this.type = 'SSH Key';
+      this.path = "root/.ssh/";
+      super(commandStr);
+    }
+    toString() {
+      let keyName = this.name.trim();
+      this.commands = [
+        new Command(
+          'RUN chmod 0500 ' + keyName + ' ' +
+          '&& echo "IdentityFile /root/.ssh/'+ keyName +'" >> /etc/ssh/ssh_config ' +
+          '&& ssh-keyscan -H github.com > /etc/ssh/ssh_known_hosts'
+        )
+      ];
+      return super.toString();
+    }
+    clone() {
+      let sshKey = new SSHKey(this.commandStr);
+      Object.keys(this).forEach((key) => sshKey[key] = this[key]);
+      return sshKey;
+    }
+  }
 }
 
 export = ContainerItems;

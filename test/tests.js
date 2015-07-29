@@ -11,6 +11,7 @@ var Repository = types.Repository;
 var MainRepository = types.MainRepository;
 var Packages = types.Packages;
 var Command = types.Command;
+var SSHKey = types.SSHKey;
 
 it('sanity checks', function () {
   expect(types).to.have.property('File');
@@ -220,5 +221,32 @@ describe('Packages', function () {
   it('should have a toString method that results in the preambled results and strip out newlines', function () {
     var packages = new Packages(preamble + packageList.split(' ').join(' \n\n'));
     expect(packages.toString()).to.equal('#Start: Packages\n'+preamble + packageList+'\n#End');
+  });
+});
+
+describe('SSH Key', function () {
+  it('should create a new SSH Key and toString to the right value', function () {
+    var key = new SSHKey();
+    key.name = 'test_key.id_rsa';
+
+    expect(key.toString()).to.contain('ADD ["./test_key.id_rsa", "/root/.ssh/"]');
+    expect(key.toString()).to.contain('RUN chmod 0500 test_key.id_rsa');
+    expect(key.toString()).to.contain('echo "IdentityFile /root/.ssh/test_key.id_rsa" >> /etc/ssh/ssh_config');
+    expect(key.toString()).to.contain('ssh-keyscan -H github.com > /etc/ssh/ssh_known_hosts');
+  });
+  it('should populate properly', function () {
+    var key = new SSHKey(
+      'ADD ["./test_key.id_rsa", "/root/.ssh/"]\n' +
+      'WORKDIR /root/.ssh/\n'+
+      'RUN chmod 0500 test_key.id_rsa && echo "IdentityFile /root/.ssh/test_key.id_rsa" >> /etc/ssh/ssh_config && ssh-keyscan -H github.com > /etc/ssh/ssh_known_hosts'
+    );
+
+    expect(key.name).to.equal('test_key.id_rsa');
+  });
+  it('should clone properly', function () {
+    var key = new SSHKey();
+    key.name = 'test_key.id_rsa';
+    var clone = key.clone();
+    expect(clone.name).to.equal('test_key.id_rsa');
   });
 });
