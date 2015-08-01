@@ -206,7 +206,7 @@ var ContainerItems;
         SSHKey.prototype.toString = function () {
             var keyName = this.name.trim();
             this.commands = [
-                new Command('RUN chmod 0500 ' + keyName + ' ' +
+                new Command('RUN chmod 0400 ' + keyName + ' ' +
                     '&& echo "IdentityFile /root/.ssh/' + keyName + '" >> /etc/ssh/ssh_config ' +
                     '&& ssh-keyscan -H github.com > /etc/ssh/ssh_known_hosts')
             ];
