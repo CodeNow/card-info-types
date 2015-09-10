@@ -222,6 +222,10 @@ describe('Packages', function () {
     var packages = new Packages(preamble + packageList.split(' ').join(' \n\n'));
     expect(packages.toString()).to.equal('#Start: Packages\n'+preamble + packageList+'\n#End');
   });
+  it('should exclude some unique strings', function () {
+    var packages = new Packages(preamble + packageList + ' -y -q apt-get update && apt-get upgrade --force-yes');
+    expect(packages.toString()).to.equal('#Start: Packages\n'+preamble + packageList+'\n#End');
+  });
 });
 
 describe('SSH Key', function () {
@@ -230,7 +234,7 @@ describe('SSH Key', function () {
     key.name = 'test_key.id_rsa';
 
     expect(key.toString()).to.contain('ADD ["./test_key.id_rsa", "/root/.ssh/"]');
-    expect(key.toString()).to.contain('RUN chmod 0500 test_key.id_rsa');
+    expect(key.toString()).to.contain('RUN chmod 0400 test_key.id_rsa');
     expect(key.toString()).to.contain('echo "IdentityFile /root/.ssh/test_key.id_rsa" >> /etc/ssh/ssh_config');
     expect(key.toString()).to.contain('ssh-keyscan -H github.com > /etc/ssh/ssh_known_hosts');
   });
@@ -238,7 +242,7 @@ describe('SSH Key', function () {
     var key = new SSHKey(
       'ADD ["./test_key.id_rsa", "/root/.ssh/"]\n' +
       'WORKDIR /root/.ssh/\n'+
-      'RUN chmod 0500 test_key.id_rsa && echo "IdentityFile /root/.ssh/test_key.id_rsa" >> /etc/ssh/ssh_config && ssh-keyscan -H github.com > /etc/ssh/ssh_known_hosts'
+      'RUN chmod 0400 test_key.id_rsa && echo "IdentityFile /root/.ssh/test_key.id_rsa" >> /etc/ssh/ssh_config && ssh-keyscan -H github.com > /etc/ssh/ssh_known_hosts'
     );
 
     expect(key.name).to.equal('test_key.id_rsa');
