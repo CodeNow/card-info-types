@@ -183,7 +183,7 @@ var ContainerItems;
             var cleanedPackageList = this.packageList.replace(/\s+/g, ' ')
                 .split(' ')
                 .filter(function (str) {
-                return ['-y', '-q', 'update', 'upgrade', '&&', '--force-yes', 'apt-get'].indexOf(str) === -1;
+                return ['-y', '--assume-yes', '--yes', '-q', '--quiet', 'update', 'upgrade', '&&', '--force-yes', 'apt-get', '-yq', '-qy'].indexOf(str) === -1;
             })
                 .join(' ');
             if (cleanedPackageList.length > 1) {

@@ -231,7 +231,7 @@ describe('Packages', function () {
     expect(packages.toString()).to.equal('#Start: Packages\n'+preamble + packageList+'\n#End');
   });
   it('should exclude some longer versions of apt-get options, no matter the order', function () {
-    var packages = new Packages(preamble + packageList + '--yes --assume-yes --quiet apt-get update && apt-get upgrade --force-yes');
+    var packages = new Packages(preamble + packageList + ' --yes --assume-yes --quiet apt-get update && apt-get upgrade --force-yes');
     expect(packages.toString()).to.equal('#Start: Packages\n'+preamble + packageList+'\n#End');
   });
 });
