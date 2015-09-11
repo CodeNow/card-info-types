@@ -1,10 +1,10 @@
 'use strict';
 
+declare let require: any;
+
 interface uuid {
   v4: any;
 }
-
-declare let require: any;
 
 let uuid = require('uuid');
 
@@ -187,7 +187,13 @@ module ContainerItems {
       }
     }
     toString() {
-      let cleanedPackageList = this.packageList.replace(/\s+/g, ' ');
+      let cleanedPackageList =
+        this.packageList.replace(/\s+/g, ' ')
+        .split(' ')
+        .filter(function (str) {
+          return str[0] !== '-' && ['update', 'upgrade', '&&', 'apt-get'].indexOf(str) === -1;
+        })
+        .join(' ');
       if (cleanedPackageList.length > 1) {
         let contents = this.preamble + cleanedPackageList;
         return this.wrapWithType(contents);

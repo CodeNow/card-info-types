@@ -180,7 +180,12 @@ var ContainerItems;
             }
         }
         Packages.prototype.toString = function () {
-            var cleanedPackageList = this.packageList.replace(/\s+/g, ' ');
+            var cleanedPackageList = this.packageList.replace(/\s+/g, ' ')
+                .split(' ')
+                .filter(function (str) {
+                return str[0] !== '-' && ['update', 'upgrade', '&&', 'apt-get'].indexOf(str) === -1;
+            })
+                .join(' ');
             if (cleanedPackageList.length > 1) {
                 var contents = this.preamble + cleanedPackageList;
                 return this.wrapWithType(contents);
