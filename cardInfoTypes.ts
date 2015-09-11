@@ -191,7 +191,7 @@ module ContainerItems {
         this.packageList.replace(/\s+/g, ' ')
         .split(' ')
         .filter(function (str) {
-          return ['-y', '--assume-yes', '--yes', '-q', '--quiet', 'update', 'upgrade', '&&', '--force-yes', 'apt-get', '-yq', '-qy'].indexOf(str) === -1;
+          return str[0] !== '-' && ['update', 'upgrade', '&&', 'apt-get'].indexOf(str) === -1;
         })
         .join(' ');
       if (cleanedPackageList.length > 1) {
