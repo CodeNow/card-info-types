@@ -122,15 +122,9 @@ module ContainerItems {
       }
 
       let contents = 'ADD ["./' + this.name.trim() + '", "/' + this.path.trim() + '"]';
-      let tempCommands = this.commands;
-
-      if (this.hasFindReplace) {
-        tempCommands = DockerfileItem.translationCommands.concat(tempCommands);
-      }
-
-      if (tempCommands.length) {
+      if (this.commands.length) {
         contents += '\nWORKDIR /' + this.path.trim() + '\n'
-        + tempCommands
+        + this.commands
           .map((command) => command.toString())
           .join('\n');
       }

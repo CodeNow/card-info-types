@@ -105,13 +105,9 @@ var ContainerItems;
                 this.path = this.path || this.name;
             }
             var contents = 'ADD ["./' + this.name.trim() + '", "/' + this.path.trim() + '"]';
-            var tempCommands = this.commands;
-            if (this.hasFindReplace) {
-                tempCommands = DockerfileItem.translationCommands.concat(tempCommands);
-            }
-            if (tempCommands.length) {
+            if (this.commands.length) {
                 contents += '\nWORKDIR /' + this.path.trim() + '\n'
-                    + tempCommands
+                    + this.commands
                         .map(function (command) { return command.toString(); })
                         .join('\n');
             }
