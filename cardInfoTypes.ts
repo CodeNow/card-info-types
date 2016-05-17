@@ -150,8 +150,6 @@ module ContainerItems {
       return myFile;
     }
   }
-  // This should be greedy enough to grab all of the apt-gets
-  let preambleRegex = /^RUN .* apt-get install -y\s*/;
 
   export class Repository extends DockerfileItem {
     constructor(commandStr: string) {
@@ -182,6 +180,8 @@ module ContainerItems {
       this.packageList = '';
       this.preamble = 'RUN apt-get update -y && apt-get install -y ';
       this.type = 'Packages';
+      // This should be greedy enough to grab all of the apt-gets
+      let preambleRegex = /^RUN .* apt-get install -y\s*/;
 
       if (commandStr) {
         this.fromServer = true;

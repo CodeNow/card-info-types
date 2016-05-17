@@ -137,8 +137,6 @@ var ContainerItems;
         return File;
     }(DockerfileItem));
     ContainerItems.File = File;
-    // This should be greedy enough to grab all of the apt-gets
-    var preambleRegex = /^RUN .* apt-get install -y\s*/;
     var Repository = (function (_super) {
         __extends(Repository, _super);
         function Repository(commandStr) {
@@ -175,6 +173,8 @@ var ContainerItems;
             this.packageList = '';
             this.preamble = 'RUN apt-get update -y && apt-get install -y ';
             this.type = 'Packages';
+            // This should be greedy enough to grab all of the apt-gets
+            var preambleRegex = /^RUN .* apt-get install -y\s*/;
             if (commandStr) {
                 this.fromServer = true;
                 this.packageList = commandStr.replace(preambleRegex, '');
