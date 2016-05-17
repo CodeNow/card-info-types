@@ -150,6 +150,8 @@ module ContainerItems {
       return myFile;
     }
   }
+  // This should be greedy enough to grab all of the apt-gets
+  let preambleRegex = /^RUN .* apt-get install -y\s*/;
 
   export class Repository extends DockerfileItem {
     constructor(commandStr: string) {
@@ -183,7 +185,7 @@ module ContainerItems {
 
       if (commandStr) {
         this.fromServer = true;
-        this.packageList = commandStr.replace(this.preamble, '');
+        this.packageList = commandStr.replace(preambleRegex, '');
       }
     }
     toString() {
