@@ -1,9 +1,8 @@
 'use strict';
-var __extends = this.__extends || function (d, b) {
+var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var uuid = require('uuid');
 var ContainerItems;
@@ -17,7 +16,7 @@ var ContainerItems;
                 '#End';
         };
         return ContainerItem;
-    })();
+    }());
     var Command = (function () {
         function Command(commandStr) {
             if (!commandStr || commandStr.trim() === '') {
@@ -59,7 +58,7 @@ var ContainerItems;
             return new Command(this.toString());
         };
         return Command;
-    })();
+    }());
     ContainerItems.Command = Command;
     var DockerfileItem = (function (_super) {
         __extends(DockerfileItem, _super);
@@ -122,7 +121,7 @@ var ContainerItems;
             new Command('RUN bash translation_rules.sh')
         ];
         return DockerfileItem;
-    })(ContainerItem);
+    }(ContainerItem));
     var File = (function (_super) {
         __extends(File, _super);
         function File(commandStr) {
@@ -136,7 +135,7 @@ var ContainerItems;
             return myFile;
         };
         return File;
-    })(DockerfileItem);
+    }(DockerfileItem));
     ContainerItems.File = File;
     var Repository = (function (_super) {
         __extends(Repository, _super);
@@ -154,7 +153,7 @@ var ContainerItems;
             return repo;
         };
         return Repository;
-    })(DockerfileItem);
+    }(DockerfileItem));
     ContainerItems.Repository = Repository;
     var MainRepository = (function (_super) {
         __extends(MainRepository, _super);
@@ -163,7 +162,7 @@ var ContainerItems;
             _super.call(this, commandStr);
         }
         return MainRepository;
-    })(Repository);
+    }(Repository));
     ContainerItems.MainRepository = MainRepository;
     var Packages = (function (_super) {
         __extends(Packages, _super);
@@ -174,9 +173,11 @@ var ContainerItems;
             this.packageList = '';
             this.preamble = 'RUN apt-get update -y && apt-get install -y ';
             this.type = 'Packages';
+            // This should be greedy enough to grab all of the apt-gets
+            var preambleRegex = /^RUN .* apt-get install -y\s*/;
             if (commandStr) {
                 this.fromServer = true;
-                this.packageList = commandStr.replace(this.preamble, '');
+                this.packageList = commandStr.replace(preambleRegex, '');
             }
         }
         Packages.prototype.toString = function () {
@@ -199,7 +200,7 @@ var ContainerItems;
             return packages;
         };
         return Packages;
-    })(ContainerItem);
+    }(ContainerItem));
     ContainerItems.Packages = Packages;
     var SSHKey = (function (_super) {
         __extends(SSHKey, _super);
@@ -224,7 +225,7 @@ var ContainerItems;
             return sshKey;
         };
         return SSHKey;
-    })(DockerfileItem);
+    }(DockerfileItem));
     ContainerItems.SSHKey = SSHKey;
 })(ContainerItems || (ContainerItems = {}));
 module.exports = ContainerItems;

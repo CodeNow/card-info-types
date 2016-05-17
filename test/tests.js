@@ -203,6 +203,10 @@ describe('Packages', function () {
     var packages = new Packages(preamble + packageList);
     expect(packages.packageList).to.equal(packageList);
   });
+  it('should parse preoperly with a commandStr', function () {
+    var packages = new Packages(preamble + packageList);
+    expect(packages.packageList).to.equal(packageList);
+  });
   it('should handle no commandStr', function () {
     var packages = new Packages();
     expect(packages.packageList).to.not.be.ok;
@@ -233,6 +237,30 @@ describe('Packages', function () {
   it('should exclude some longer versions of apt-get options, no matter the order', function () {
     var packages = new Packages(preamble + packageList + ' --yes --assume-yes --quiet apt-get update');
     expect(packages.toString()).to.equal('#Start: Packages\n'+preamble + packageList+'\n#End');
+  });
+});
+
+describe('Backwards-compatible Packages', function () {
+  var packageList = 'test ssh dnsutils';
+  var preamble = 'RUN apt-get update -y && apt-get upgrade -y && apt-get install -y ';
+  it('should parse preoperly with a commandStr', function () {
+    var packages = new Packages(preamble + packageList);
+    expect(packages.packageList).to.equal(packageList);
+  });
+  it('should parse preoperly with a commandStr', function () {
+    var packages = new Packages(preamble + packageList);
+    expect(packages.packageList).to.equal(packageList);
+  });
+  it('should handle no commandStr', function () {
+    var packages = new Packages();
+    expect(packages.packageList).to.not.be.ok;
+    expect(packages.toString()).to.equal('');
+  });
+  it('should clone properly', function () {
+    var packages = new Packages(preamble + packageList);
+    packages.packageList = 'test';
+    var cloned = packages.clone();
+    expect(cloned.packageList).to.equal('test');
   });
 });
 

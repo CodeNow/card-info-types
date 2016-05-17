@@ -180,10 +180,12 @@ module ContainerItems {
       this.packageList = '';
       this.preamble = 'RUN apt-get update -y && apt-get install -y ';
       this.type = 'Packages';
+      // This should be greedy enough to grab all of the apt-gets
+      let preambleRegex = /^RUN .* apt-get install -y\s*/;
 
       if (commandStr) {
         this.fromServer = true;
-        this.packageList = commandStr.replace(this.preamble, '');
+        this.packageList = commandStr.replace(preambleRegex, '');
       }
     }
     toString() {
